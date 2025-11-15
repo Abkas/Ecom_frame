@@ -3,7 +3,7 @@ from typing import Optional
 
 
 class Address(BaseModel):
-    full_name : str
+    full_name : str 
     phone_number : str
 
     address_type : str = Field(default = 'Home')

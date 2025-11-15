@@ -8,7 +8,6 @@ class OrderItem(BaseModel) :
     quantity: int = Field(ge=1)
     price: float = Field (ge= 0)
 
-
 class Order(BaseModel):
     id:Optional[str] = Field(default= None , alias ='_id')
     user_id : str = Field(description = "who placed the order")
@@ -21,7 +20,7 @@ class Order(BaseModel):
 
     shipping_address: dict
 
-    status : str = Field(default = 'pending', description= "pending, processing , shipped, delivere, cancelled")
+    order_status : str = Field(default = 'pending', description= "pending, processing , shipped, delivere, cancelled")
     payment_status: str = Field(default='unpaid', description='paid, unpaid , refunded')
 
     created_at: datetime = Field(default_factory = datetime.now)
