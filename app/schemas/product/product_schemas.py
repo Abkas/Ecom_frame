@@ -35,6 +35,7 @@ class ProductStockUpdate(BaseModel):
 
 class ChangeAvailabilityProduct(BaseModel):
     is_available : Optional[bool]
+    
 class ProductResponse(BaseModel):
     id : str
     name : str
