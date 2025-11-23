@@ -79,12 +79,14 @@ class CouponUpdate(BaseModel):
 class CouponValidate(BaseModel):
     coupon_code: str
     cart_total: float = Field(ge=0, description="Total cart value before discount")
+    user_id: Optional[str] = Field(default=None, description="User ID for per-user usage validation")
 
     class Config:
         json_schema_extra = {
             "example": {
                 "coupon_code": "SAVE25",
-                "cart_total": 1500.00
+                "cart_total": 1500.00,
+                "user_id": "user123"
             }
         }
 

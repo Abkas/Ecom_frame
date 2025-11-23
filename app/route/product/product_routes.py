@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import Optional
 from app.schemas.product.product_schemas import (CreateProduct, ProductDetailUpdate, ProductPriceUpdate, ProductStockUpdate, ChangeAvailabilityProduct, ProductResponse)
-from ecom_backend_framework.app.services.product.product_service import ProductService
+from ecom_backend_framework.app.services.product.product_service import change_availability,get_product_by_id, create_product, delete_product, update_product , update_product_price ,update_product_stock ,get_all_products
 from app.core.security import get_admin_user
 
 router = APIRouter(
@@ -21,7 +21,7 @@ async def get_all_products(
     skip: int = 0,
     limit: int = 50
 ):
-    result = await ProductService.get_all_products(
+    result = await get_all_products(
         category=category,
         search=search,
         min_price=min_price,
@@ -35,7 +35,7 @@ async def get_all_products(
 
 @router.get('/{product_id}', response_model=ProductResponse)
 async def get_product_by_id(product_id: str):
-    result = await ProductService.get_product_by_id(product_id)
+    result = await get_product_by_id(product_id)
     return result
 
 
@@ -46,7 +46,7 @@ async def create_product(
     product: CreateProduct,
     admin_user: dict = Depends(get_admin_user)
 ):
-    result = await ProductService.create_product(product)
+    result = await create_product(product)
     return result
 
 
@@ -56,7 +56,7 @@ async def update_product_details(
     product_update: ProductDetailUpdate,
     admin_user: dict = Depends(get_admin_user)
 ):
-    result = await ProductService.update_product_details(product_id, product_update)
+    result = await update_product(product_id, product_update)
     return result
 
 
@@ -66,7 +66,7 @@ async def update_product_price(
     price_update: ProductPriceUpdate,
     admin_user: dict = Depends(get_admin_user)
 ):
-    result = await ProductService.update_product_price(product_id, price_update)
+    result = await update_product_price(product_id, price_update)
     return result
 
 
@@ -76,7 +76,7 @@ async def update_product_stock(
     stock_update: ProductStockUpdate,
     admin_user: dict = Depends(get_admin_user)
 ):
-    result = await ProductService.update_product_stock(product_id, stock_update)
+    result = await update_product_stock(product_id, stock_update)
     return result
 
 
@@ -87,7 +87,7 @@ async def toggle_product_availability(
     admin_user: dict = Depends(get_admin_user)
 ):
 
-    result = await ProductService.change_availability(product_id, availability.is_available)
+    result = await change_availability(product_id, availability.is_available)
     return result
 
 
@@ -96,5 +96,5 @@ async def delete_product(
     product_id: str,
     admin_user: dict = Depends(get_admin_user)
 ):
-    await ProductService.delete_product(product_id)
+    await delete_product(product_id)
     return None

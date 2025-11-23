@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.schemas.product.order_schemas import OrderCreate, OrderItemSchema, OrderListItem, OrderPaymentUpdate, OrderResponse, OrderStatusUpdate
-from ecom_backend_framework.app.services.product.order_service import OrderService
+from ecom_backend_framework.app.services.product.order_service import get_order_by_id,cancel_order,create_order,update_order_status,get_all_orders,get_user_orders
 from app.core.security import get_current_user, get_admin_user
 
 
@@ -17,13 +17,12 @@ async def place_order(
     order_data: OrderCreate,
     current_user: dict = Depends(get_current_user)
 ):
-    result = await OrderService.create_order(current_user['user_id'], order_data)
+    result = await create_order(current_user['user_id'], order_data)
     return result
-
 
 @router.get('/me', response_model=list[OrderListItem])
 async def get_my_orders(current_user: dict = Depends(get_current_user)):
-    result = await OrderService.get_user_orders(current_user['user_id'])
+    result = await get_user_orders(current_user['user_id'])
     return result
 
 
@@ -32,7 +31,7 @@ async def get_order_by_id(
     order_id: str,
     current_user: dict = Depends(get_current_user)
 ):
-    result = await OrderService.get_order_by_id(order_id, current_user['user_id'])
+    result = await get_order_by_id(order_id, current_user['user_id'])
     return result
 
 
@@ -41,7 +40,7 @@ async def cancel_order(
     order_id: str,
     current_user: dict = Depends(get_current_user)
 ):
-    result = await OrderService.cancel_order(order_id, current_user['user_id'])
+    result = await cancel_order(order_id, current_user['user_id'])
     return result
 
 
@@ -53,7 +52,7 @@ async def get_all_orders(
     status_filter: str = None,
     limit: int = 50
 ):
-    result = await OrderService.get_all_orders(status_filter, limit)
+    result = await get_all_orders(status_filter, limit)
     return result
 
 
@@ -63,7 +62,7 @@ async def update_order_status(
     status_update: OrderStatusUpdate,
     admin_user: dict = Depends(get_admin_user)
 ):
-    result = await OrderService.update_order_status(order_id, status_update.status)
+    result = await update_order_status(order_id, status_update.status)
     return result
 
 
@@ -73,7 +72,7 @@ async def update_payment_status(
     payment_update: OrderPaymentUpdate,
     admin_user: dict = Depends(get_admin_user)
 ):
-    result = await OrderService.update_payment_status(order_id, payment_update.payment_status)
+    result = await update_payment_status(order_id, payment_update.payment_status)
     return result
 
 

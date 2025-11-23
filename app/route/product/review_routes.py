@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.schemas.product.review_schemas import ReviewCreate, ReviewUpdate, ReviewResponse, ReviewListItem, ReviewApprovalUpdate, ReviewHelpfulUpdate
-from ecom_backend_framework.app.services.product.review_service import ReviewService
+from ecom_backend_framework.app.services.product.review_service import get_review_by_id, mark_review_helpful, create_review, delete_review, update_review, update_review_approval, get_product_reviews
 from app.core.security import get_current_user, get_admin_user
 
 
@@ -16,7 +16,7 @@ async def create_review(
     review: ReviewCreate,
     current_user: dict = Depends(get_current_user)
 ):
-    result = await ReviewService.create_review(product_id, current_user['user_id'], review)
+    result = await create_review(product_id, current_user['user_id'], review)
     return result
 
 
@@ -26,7 +26,7 @@ async def get_product_reviews(
     skip: int = 0,
     limit: int = 20
 ):
-    result = await ReviewService.get_product_reviews(product_id, skip, limit)
+    result = await get_product_reviews(product_id, skip, limit)
     return result
 
 
@@ -36,7 +36,7 @@ async def update_review(
     review_update: ReviewUpdate,
     current_user: dict = Depends(get_current_user)
 ):
-    result = await ReviewService.update_review(review_id, current_user['user_id'], review_update)
+    result = await update_review(review_id, current_user['user_id'], review_update)
     return result
 
 
@@ -45,7 +45,7 @@ async def delete_review(
     review_id: str,
     current_user: dict = Depends(get_current_user)
 ):
-    await ReviewService.delete_review(review_id, current_user['user_id'])
+    await delete_review(review_id, current_user['user_id'])
     return None
 
 
@@ -55,7 +55,7 @@ async def mark_review_helpful(
     helpful_data: ReviewHelpfulUpdate,
     current_user: dict = Depends(get_current_user)
 ):
-    result = await ReviewService.mark_review_helpful(review_id, current_user['user_id'], helpful_data.action)
+    result = await mark_review_helpful(review_id, current_user['user_id'], helpful_data.action)
     return result
 
 
@@ -67,5 +67,5 @@ async def update_review_approval(
     approval: ReviewApprovalUpdate,
     admin_user: dict = Depends(get_admin_user)
 ):
-    result = await ReviewService.update_review_approval(review_id, approval.is_approved)
+    result = await update_review_approval(review_id, approval.is_approved)
     return result

@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.schemas.utility.coupon_schemas import CouponCreate, CouponListItem, CouponResponse, CouponUpdate, CouponValidate, CouponValidateResponse
-from ecom_backend_framework.app.services.utility.coupon_service import CouponService
+from ecom_backend_framework.app.services.utility.coupon_service import create_coupon,get_coupon_by_id,apply_coupon_to_cart,delete_coupon,toggle_coupon_activity,update_coupon,get_all_coupons,validate_coupon,get_active_coupons.core.security import get_current_user, get_admin_user
 from app.core.security import get_current_user, get_admin_user
-
 
 router = APIRouter(
     prefix='/coupons',
@@ -17,13 +16,13 @@ async def create_coupon(
     coupon: CouponCreate,
     admin_user: dict = Depends(get_admin_user)
 ):
-    result = await CouponService.create_coupon(coupon, admin_user['user_id'])
+    result = await create_coupon(coupon, admin_user['user_id'])
     return result
 
 
 @router.get('/', response_model=list[CouponListItem])
 async def get_all_coupons(admin_user: dict = Depends(get_admin_user)):
-    result = await CouponService.get_all_coupons()
+    result = await get_all_coupons()
     return result
 
 
@@ -32,7 +31,7 @@ async def get_coupon_by_id(
     coupon_id: str,
     admin_user: dict = Depends(get_admin_user)
 ):
-    result = await CouponService.get_coupon_by_id(coupon_id)
+    result = await get_coupon_by_id(coupon_id)
     return result
 
 
@@ -42,7 +41,7 @@ async def update_coupon(
     coupon_update: CouponUpdate,
     admin_user: dict = Depends(get_admin_user)
 ):
-    result = await CouponService.update_coupon(coupon_id, coupon_update)
+    result = await update_coupon(coupon_id, coupon_update)
     return result
 
 
@@ -51,16 +50,18 @@ async def delete_coupon(
     coupon_id: str,
     admin_user: dict = Depends(get_admin_user)
 ):
-    await CouponService.delete_coupon(coupon_id)
+    await delete_coupon(coupon_id)
     return None
 
 
-@router.patch('/{coupon_id}/toggle-active', response_model=CouponResponse)
-async def toggle_coupon_active(
+@router.patch('/{coupon_id}/toggle', response_model=CouponResponse)
+async def toggle_coupon_activity_route(
     coupon_id: str,
     admin_user: dict = Depends(get_admin_user)
 ):
-    result = await CouponService.toggle_active(coupon_id)
+    result = await toggle_coupon_activity(coupon_id)
+    if not result:
+        raise HTTPException(status_code=404, detail="Coupon not found or not updated")
     return result
 
 
@@ -71,7 +72,7 @@ async def validate_coupon(
     validation_data: CouponValidate,
     current_user: dict = Depends(get_current_user)
 ):
-    result = await CouponService.validate_coupon(
+    result = validate_coupon(
         validation_data.coupon_code,
         validation_data.cart_total,
         current_user['user_id']
@@ -81,5 +82,5 @@ async def validate_coupon(
 
 @router.get('/active', response_model=list[CouponListItem])
 async def get_active_coupons():
-    result = await CouponService.get_active_coupons()
+    result = await get_active_coupons()
     return result
